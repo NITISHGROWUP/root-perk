@@ -11,7 +11,6 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
         .mirror { transform: scaleX(-1); }
         video { object-fit: cover; }
-        
         .yellow-bg { background-color: #FFE600; }
         .panel-glass {
             background: rgba(255, 255, 255, 0.2);
@@ -37,13 +36,11 @@
         
         <!-- Filter Controls -->
         <div class="flex items-center space-x-3">
-            <div class="relative">
-                <select id="genderSelect" onchange="handleGenderChange(this.value)" class="bg-slate-950 text-yellow-300 font-extrabold text-xs px-4 py-2 rounded-xl border border-black cursor-pointer shadow">
-                    <option value="both">Filter: Both (Free)</option>
-                    <option value="male">Filter: Male ♂</option>
-                    <option value="female">Filter: Female ♀</option>
-                </select>
-            </div>
+            <select id="genderSelect" onchange="handleGenderChange(this.value)" class="bg-slate-950 text-yellow-300 font-extrabold text-xs px-4 py-2 rounded-xl border border-black cursor-pointer shadow">
+                <option value="both">Filter: Both (Free)</option>
+                <option value="male">Filter: Male ♂</option>
+                <option value="female">Filter: Female ♀</option>
+            </select>
             <div id="filterTimer" class="hidden bg-emerald-600 text-white font-black text-xs px-3 py-1.5 rounded-xl animate-pulse">
                 2:00 Left
             </div>
@@ -109,7 +106,7 @@
                         </span>
                     </div>
 
-                    <!-- Conditional Text Chat Box (Connected thaya baad j dekhase) -->
+                    <!-- Conditional Text Chat Box -->
                     <div id="chatOverlay" class="hidden absolute bottom-3 left-3 right-3 bg-black/70 backdrop-blur-md p-2.5 rounded-2xl border border-white/20 z-20 flex flex-col space-y-2">
                         <div id="chatMessages" class="h-20 overflow-y-auto text-xs font-semibold space-y-1 pr-1 text-white">
                             <div class="text-yellow-300 italic text-[11px]">System: Connected with stranger! Say Hi...</div>
@@ -147,7 +144,6 @@
                 Watch a quick 5-second ad to unlock <span id="pendingGenderText" class="uppercase underline"></span> filter for 2 minutes!
             </p>
             
-            <!-- Dummy Video/Ad Box -->
             <div class="bg-slate-950 h-32 rounded-2xl flex items-center justify-center relative overflow-hidden border-2 border-black">
                 <span class="text-yellow-300 font-black text-xs">SPONSORED REWARD AD</span>
                 <div id="adCountdown" class="absolute top-2 right-2 bg-yellow-400 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded">
@@ -169,21 +165,26 @@
         </div>
     </footer>
 
-    <!-- Logic Script -->
+    <!-- Logic Script with Custom Signaling Server -->
     <script>
         let localStream, peer, currentCall, dataConn;
         let selectedGender = "both";
         let filterTimerInterval = null;
         let pendingGender = "";
 
-        // WebRTC Connection Logic
         async function initMedia() {
             try {
                 localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
                 document.getElementById('localVideo').srcObject = localStream;
                 document.getElementById('statusText').innerText = "CONNECTING TO SERVERS...";
                 
-                peer = new Peer();
+                // Yahan aapka apna custom signaling server connect ho raha hai (200-300 users ke liye stable)
+                peer = new Peer({
+                    host: 'root-perk-signaling.onrender.com',
+                    port: 443,
+                    secure: true,
+                    path: '/'
+                });
 
                 peer.on('open', (id) => {
                     document.getElementById('statusText').innerText = `SEARCHING FOR MATCH (${selectedGender.toUpperCase()})...`;
@@ -193,7 +194,6 @@
                     document.getElementById('stopBtn').disabled = false;
                 });
 
-                // Incoming Calls & Text Data Connection
                 peer.on('call', (call) => {
                     call.answer(localStream);
                     call.on('stream', (remoteStream) => {
@@ -214,7 +214,6 @@
             }
         }
 
-        // Text Chat Feature Overlay
         function showChatOverlay() {
             document.getElementById('chatOverlay').classList.remove('hidden');
         }
@@ -256,7 +255,6 @@
             container.scrollTop = container.scrollHeight;
         }
 
-        // Reward Ad & Gender Filter System
         function handleGenderChange(val) {
             if (val === 'both') {
                 selectedGender = 'both';
@@ -264,7 +262,6 @@
                 resetFilterTimer();
                 return;
             }
-            
             pendingGender = val;
             document.getElementById('pendingGenderText').innerText = val;
             showAdModal();
@@ -299,7 +296,7 @@
             document.getElementById('adModal').classList.add('hidden');
             selectedGender = pendingGender;
             document.getElementById('currentFilterText').innerText = `Filter: ${selectedGender.toUpperCase()} (Active)`;
-            startFilterTimer(120); // 2 Minutes = 120 Seconds
+            startFilterTimer(120);
         }
 
         function startFilterTimer(durationSeconds) {
@@ -324,7 +321,7 @@
             if (filterTimerInterval) clearInterval(filterTimerInterval);
             document.getElementById('filterTimer').classList.add('hidden');
             document.getElementById('genderSelect').value = 'both';
-            selectedGender = 'both';
+            selectedgender = 'both';
             document.getElementById('currentFilterText').innerText = "Filter: Both (Random)";
         }
 
