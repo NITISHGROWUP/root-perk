@@ -12,18 +12,21 @@
         .mirror { transform: scaleX(-1); }
         video { object-fit: cover; }
         
-        /* Vibrant Yellow & Glass Theme */
         .yellow-bg { background-color: #FFE600; }
         .panel-glass {
             background: rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(16px);
             border: 2px solid rgba(0, 0, 0, 0.1);
         }
+        .yellow-card {
+            background: #FFED4A;
+            border: 3px solid #0F172A;
+        }
     </style>
 </head>
-<body class="yellow-bg text-slate-950 min-h-screen flex flex-col justify-between selection:bg-black selection:text-yellow-300 overflow-x-hidden">
+<body class="yellow-bg text-slate-950 min-h-screen flex flex-col justify-between overflow-x-hidden">
 
-    <!-- Top Navigation Header -->
+    <!-- Header -->
     <header class="w-full max-w-7xl mx-auto px-6 py-4 flex justify-between items-center z-30">
         <div class="flex items-center space-x-3">
             <div class="w-11 h-11 bg-slate-950 rounded-2xl flex items-center justify-center text-yellow-300 font-black text-xl shadow-lg">
@@ -31,46 +34,48 @@
             </div>
             <span class="text-3xl font-black tracking-tight text-slate-950">Root Perk</span>
         </div>
-        <div class="flex items-center space-x-2 bg-black/10 px-4 py-2 rounded-full border border-black/10">
-            <span class="w-2.5 h-2.5 bg-emerald-600 rounded-full animate-ping"></span>
-            <span class="text-xs font-black text-slate-950 uppercase tracking-wider">Online & Ready</span>
+        
+        <!-- Filter Controls -->
+        <div class="flex items-center space-x-3">
+            <div class="relative">
+                <select id="genderSelect" onchange="handleGenderChange(this.value)" class="bg-slate-950 text-yellow-300 font-extrabold text-xs px-4 py-2 rounded-xl border border-black cursor-pointer shadow">
+                    <option value="both">Filter: Both (Free)</option>
+                    <option value="male">Filter: Male ♂</option>
+                    <option value="female">Filter: Female ♀</option>
+                </select>
+            </div>
+            <div id="filterTimer" class="hidden bg-emerald-600 text-white font-black text-xs px-3 py-1.5 rounded-xl animate-pulse">
+                2:00 Left
+            </div>
         </div>
     </header>
 
-    <!-- Main High-Impact Section (Inspired by your references) -->
+    <!-- Main Grid -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-2 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
 
-        <!-- Left Side: Minimalist High-Engagement Control Box -->
-        <div class="lg:col-span-4 space-y-5">
+        <!-- Left Control Box -->
+        <div class="lg:col-span-4 space-y-4">
             <div class="space-y-2">
                 <span class="inline-block bg-slate-950 text-yellow-300 font-black text-[10px] px-3 py-1 rounded-full uppercase tracking-wider">
                     Instant 1-on-1 Discovery
                 </span>
-                <h1 class="text-3xl sm:text-4xl font-black text-slate-950 leading-tight">
+                <h1 class="text-3xl font-black text-slate-950 leading-tight">
                     Talk to Strangers Instantly.
                 </h1>
-                <p class="text-slate-900 font-bold text-xs sm:text-sm opacity-90 leading-relaxed">
-                    Zero friction. Real faces. High-definition live video matching with a single tap.
+                <p class="text-slate-900 font-bold text-xs opacity-90">
+                    Real faces, high quality matching with zero friction.
                 </p>
             </div>
 
-            <!-- Quick Action Glass Panel -->
             <div class="panel-glass p-5 rounded-3xl space-y-4 shadow-xl">
                 <div class="flex items-center space-x-3 bg-white/40 p-3 rounded-2xl">
-                    <div class="w-10 h-10 rounded-full bg-slate-950 text-yellow-300 font-black flex items-center justify-center text-sm shadow">
+                    <div class="w-10 h-10 rounded-full bg-slate-950 text-yellow-300 font-black flex items-center justify-center text-sm">
                         ⚡
                     </div>
                     <div>
-                        <p class="font-black text-slate-950 text-sm">Guest Mode Active</p>
-                        <p class="text-[11px] font-bold text-slate-800">100% Secure & Filtered</p>
+                        <p class="font-black text-slate-950 text-sm">Guest Mode</p>
+                        <p class="text-[11px] font-bold text-slate-800" id="currentFilterText">Filter: Both (Random)</p>
                     </div>
-                </div>
-
-                <div class="space-y-2 text-[11px] font-bold text-slate-900">
-                    <label class="flex items-center space-x-2 cursor-pointer">
-                        <input type="checkbox" checked class="rounded border-slate-950 text-slate-950 focus:ring-0 w-4 h-4 accent-slate-950">
-                        <span>I am 18+ years old & accept guidelines</span>
-                    </label>
                 </div>
 
                 <button id="startBtn" onclick="initMedia()" class="w-full py-4 rounded-2xl bg-slate-950 hover:bg-black text-yellow-300 font-black text-base shadow-2xl transition transform active:scale-95 flex items-center justify-center space-x-2">
@@ -80,38 +85,49 @@
             </div>
         </div>
 
-        <!-- Right Side: Immersive Split Video Screen (Like Reference) -->
+        <!-- Video & Conditional Text Overlay Section -->
         <div class="lg:col-span-8">
-            <div class="relative bg-slate-950 p-3 rounded-3xl shadow-2xl border-4 border-slate-950/20">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 rounded-2xl overflow-hidden aspect-[16/10] bg-slate-900">
+            <div class="relative bg-slate-950 p-3.5 rounded-3xl shadow-2xl border-4 border-slate-950/20">
+                <div class="relative grid grid-cols-1 sm:grid-cols-2 gap-2 rounded-2xl overflow-hidden aspect-[16/10] bg-slate-900">
                     
-                    <!-- Stranger Stream Window -->
+                    <!-- Remote Stream -->
                     <div class="relative bg-slate-800 flex items-center justify-center min-h-[240px]">
                         <video id="remoteVideo" autoplay playsinline class="w-full h-full"></video>
                         <div id="statusText" class="absolute text-center px-4 text-xs font-black text-yellow-300 tracking-wider">
                             TAP "START MATCHING" TO CONNECT
                         </div>
-                        <span class="absolute top-3 left-3 bg-black/80 backdrop-blur-md text-yellow-300 font-black text-[10px] uppercase px-2.5 py-1 rounded-lg">
+                        <span class="absolute top-3 left-3 bg-black/80 backdrop-blur-md text-yellow-300 font-black text-[10px] uppercase px-2.5 py-1 rounded-lg z-10">
                             Stranger 🐵
                         </span>
                     </div>
 
-                    <!-- User Local Stream Window -->
+                    <!-- Local Stream -->
                     <div class="relative bg-slate-800 flex items-center justify-center min-h-[240px]">
                         <video id="localVideo" autoplay muted playsinline class="w-full h-full mirror"></video>
-                        <span class="absolute top-3 left-3 bg-black/80 backdrop-blur-md text-yellow-300 font-black text-[10px] uppercase px-2.5 py-1 rounded-lg">
+                        <span class="absolute top-3 left-3 bg-black/80 backdrop-blur-md text-yellow-300 font-black text-[10px] uppercase px-2.5 py-1 rounded-lg z-10">
                             You 🍌
                         </span>
                     </div>
 
+                    <!-- Conditional Text Chat Box (Connected thaya baad j dekhase) -->
+                    <div id="chatOverlay" class="hidden absolute bottom-3 left-3 right-3 bg-black/70 backdrop-blur-md p-2.5 rounded-2xl border border-white/20 z-20 flex flex-col space-y-2">
+                        <div id="chatMessages" class="h-20 overflow-y-auto text-xs font-semibold space-y-1 pr-1 text-white">
+                            <div class="text-yellow-300 italic text-[11px]">System: Connected with stranger! Say Hi...</div>
+                        </div>
+                        <div class="flex space-x-2">
+                            <input type="text" id="chatInput" placeholder="Type a message..." class="flex-1 bg-white/20 text-white placeholder-slate-300 text-xs px-3 py-2 rounded-xl focus:outline-none border border-white/10" onkeypress="handleKeyPress(event)">
+                            <button onclick="sendMessage()" class="bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-black text-xs px-4 py-2 rounded-xl transition">Send</button>
+                        </div>
+                    </div>
+
                 </div>
 
-                <!-- Call Control Floating Action Bar -->
+                <!-- Controls -->
                 <div class="mt-3 flex items-center justify-between px-2">
-                    <button id="stopBtn" onclick="stopCall()" disabled class="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-black text-xs uppercase tracking-wider transition disabled:opacity-30 disabled:cursor-not-allowed">
+                    <button id="stopBtn" onclick="stopCall()" disabled class="px-6 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-black text-xs uppercase tracking-wider transition disabled:opacity-30 disabled:cursor-not-allowed">
                         Disconnect
                     </button>
-                    <button id="nextBtn" onclick="nextStranger()" disabled class="px-6 py-2.5 rounded-xl bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-black text-xs uppercase tracking-wider transition shadow disabled:opacity-30 disabled:cursor-not-allowed">
+                    <button id="nextBtn" onclick="nextStranger()" disabled class="px-7 py-2.5 rounded-xl bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-black text-xs uppercase tracking-wider transition shadow disabled:opacity-30 disabled:cursor-not-allowed">
                         Next Match ➔
                     </button>
                 </div>
@@ -120,21 +136,47 @@
 
     </main>
 
-    <!-- Bottom Minimal Footer Bar -->
-    <footer class="w-full max-w-7xl mx-auto px-6 py-4 z-20">
-        <div class="panel-glass rounded-2xl p-3 flex flex-wrap items-center justify-between gap-3 text-slate-950 text-xs font-bold shadow-md">
-            <div class="flex items-center space-x-2">
-                <span class="bg-slate-950 text-yellow-300 px-2 py-0.5 rounded text-[10px]">PRO</span>
-                <span>Root Perk Secure Cloud-Relayed Matching Engine</span>
+    <!-- Reward Ad Modal Popup -->
+    <div id="adModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="yellow-card max-w-sm w-full p-6 rounded-3xl text-center space-y-4 shadow-2xl">
+            <div class="w-14 h-14 bg-slate-950 text-yellow-300 text-2xl rounded-2xl flex items-center justify-center mx-auto shadow">
+                🎁
             </div>
-            <span class="opacity-75">© 2026 Root Perk</span>
+            <h3 class="text-xl font-black text-slate-950">Unlock Gender Filter</h3>
+            <p class="text-xs font-bold text-slate-900 leading-relaxed">
+                Watch a quick 5-second ad to unlock <span id="pendingGenderText" class="uppercase underline"></span> filter for 2 minutes!
+            </p>
+            
+            <!-- Dummy Video/Ad Box -->
+            <div class="bg-slate-950 h-32 rounded-2xl flex items-center justify-center relative overflow-hidden border-2 border-black">
+                <span class="text-yellow-300 font-black text-xs">SPONSORED REWARD AD</span>
+                <div id="adCountdown" class="absolute top-2 right-2 bg-yellow-400 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded">
+                    Ad: 5s
+                </div>
+            </div>
+
+            <button id="adClaimBtn" disabled onclick="claimFilterReward()" class="w-full py-3 bg-slate-950 text-yellow-300 font-black text-sm rounded-xl opacity-50 cursor-not-allowed transition">
+                Please Wait (5s)...
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="w-full max-w-7xl mx-auto px-6 py-4 z-20">
+        <div class="panel-glass rounded-2xl p-3 flex items-center justify-between text-slate-950 text-xs font-bold shadow">
+            <span>Root Perk © 2026</span>
+            <span>Cloud-Relayed Matching Active</span>
         </div>
     </footer>
 
-    <!-- WebRTC JavaScript Engine -->
+    <!-- Logic Script -->
     <script>
-        let localStream, peer, currentCall;
+        let localStream, peer, currentCall, dataConn;
+        let selectedGender = "both";
+        let filterTimerInterval = null;
+        let pendingGender = "";
 
+        // WebRTC Connection Logic
         async function initMedia() {
             try {
                 localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
@@ -144,35 +186,158 @@
                 peer = new Peer();
 
                 peer.on('open', (id) => {
-                    document.getElementById('statusText').innerText = "FINDING VERIFIED STRANGER...";
+                    document.getElementById('statusText').innerText = `SEARCHING FOR MATCH (${selectedGender.toUpperCase()})...`;
                     document.getElementById('startBtn').disabled = true;
                     document.getElementById('startBtn').classList.add('opacity-50');
                     document.getElementById('nextBtn').disabled = false;
                     document.getElementById('stopBtn').disabled = false;
                 });
 
+                // Incoming Calls & Text Data Connection
                 peer.on('call', (call) => {
                     call.answer(localStream);
                     call.on('stream', (remoteStream) => {
                         document.getElementById('remoteVideo').srcObject = remoteStream;
                         document.getElementById('statusText').innerText = "";
+                        showChatOverlay();
                     });
                     currentCall = call;
                 });
 
+                peer.on('connection', (conn) => {
+                    dataConn = conn;
+                    setupDataConnection();
+                });
+
             } catch (err) {
-                alert("Camera and Microphone permissions are required to use Root Perk.");
+                alert("Camera and Microphone permissions are required!");
             }
+        }
+
+        // Text Chat Feature Overlay
+        function showChatOverlay() {
+            document.getElementById('chatOverlay').classList.remove('hidden');
+        }
+
+        function hideChatOverlay() {
+            document.getElementById('chatOverlay').classList.add('hidden');
+            document.getElementById('chatMessages').innerHTML = '<div class="text-yellow-300 italic text-[11px]">System: Connected with stranger! Say Hi...</div>';
+        }
+
+        function setupDataConnection() {
+            dataConn.on('data', (data) => {
+                appendChatMessage("Stranger", data);
+            });
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const msg = input.value.trim();
+            if (msg && dataConn && dataConn.open) {
+                dataConn.send(msg);
+                appendChatMessage("You", msg);
+                input.value = "";
+            } else if (msg) {
+                appendChatMessage("You", msg);
+                input.value = "";
+            }
+        }
+
+        function handleKeyPress(e) {
+            if (e.key === 'Enter') sendMessage();
+        }
+
+        function appendChatMessage(sender, message) {
+            const container = document.getElementById('chatMessages');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = sender === "You" ? "text-yellow-300 font-bold" : "text-white font-semibold";
+            msgDiv.innerText = `${sender}: ${message}`;
+            container.appendChild(msgDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // Reward Ad & Gender Filter System
+        function handleGenderChange(val) {
+            if (val === 'both') {
+                selectedGender = 'both';
+                document.getElementById('currentFilterText').innerText = "Filter: Both (Random)";
+                resetFilterTimer();
+                return;
+            }
+            
+            pendingGender = val;
+            document.getElementById('pendingGenderText').innerText = val;
+            showAdModal();
+        }
+
+        function showAdModal() {
+            const modal = document.getElementById('adModal');
+            const claimBtn = document.getElementById('adClaimBtn');
+            const countdownEl = document.getElementById('adCountdown');
+            modal.classList.remove('hidden');
+            
+            let timeLeft = 5;
+            claimBtn.disabled = true;
+            claimBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            claimBtn.innerText = `Please Wait (${timeLeft}s)...`;
+
+            const adInterval = setInterval(() => {
+                timeLeft--;
+                countdownEl.innerText = `Ad: ${timeLeft}s`;
+                claimBtn.innerText = `Please Wait (${timeLeft}s)...`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(adInterval);
+                    claimBtn.disabled = false;
+                    claimBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    claimBtn.innerText = "CLAIM 2-MIN UNLOCK 🎁";
+                }
+            }, 1000);
+        }
+
+        function claimFilterReward() {
+            document.getElementById('adModal').classList.add('hidden');
+            selectedGender = pendingGender;
+            document.getElementById('currentFilterText').innerText = `Filter: ${selectedGender.toUpperCase()} (Active)`;
+            startFilterTimer(120); // 2 Minutes = 120 Seconds
+        }
+
+        function startFilterTimer(durationSeconds) {
+            resetFilterTimer();
+            let timer = durationSeconds;
+            const timerEl = document.getElementById('filterTimer');
+            timerEl.classList.remove('hidden');
+
+            filterTimerInterval = setInterval(() => {
+                let mins = Math.floor(timer / 60);
+                let secs = timer % 60;
+                timerEl.innerText = `${mins}:${secs < 10 ? '0' : ''}${secs} Left`;
+
+                if (--timer < 0) {
+                    resetFilterTimer();
+                    alert("2-Minute Gender Filter expired! Switched back to Both.");
+                }
+            }, 1000);
+        }
+
+        function resetFilterTimer() {
+            if (filterTimerInterval) clearInterval(filterTimerInterval);
+            document.getElementById('filterTimer').classList.add('hidden');
+            document.getElementById('genderSelect').value = 'both';
+            selectedGender = 'both';
+            document.getElementById('currentFilterText').innerText = "Filter: Both (Random)";
         }
 
         function stopCall() {
             if (currentCall) currentCall.close();
             if (localStream) localStream.getTracks().forEach(t => t.stop());
+            hideChatOverlay();
             location.reload();
         }
 
         function nextStranger() {
             document.getElementById('statusText').innerText = "SKIPPING TO NEXT MATCH...";
+            hideChatOverlay();
             if (currentCall) currentCall.close();
         }
     </script>
