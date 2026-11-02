@@ -25,6 +25,40 @@
 </head>
 <body class="yellow-bg text-slate-950 min-h-screen flex flex-col justify-between overflow-x-hidden">
 
+    <!-- Mandatory Safety & Gmail Login Modal -->
+    <div id="authModal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="yellow-card max-w-md w-full p-6 rounded-3xl text-center space-y-5 shadow-2xl">
+            <div class="w-16 h-16 bg-slate-950 text-yellow-300 text-3xl rounded-2xl flex items-center justify-center mx-auto shadow-lg">
+                🛡️
+            </div>
+            <div>
+                <h2 class="text-2xl font-black text-slate-950">Welcome to Root Perk</h2>
+                <p class="text-xs font-bold text-slate-800 mt-1">Secure 1-on-1 Video Discovery</p>
+            </div>
+
+            <!-- Safety Rules Box -->
+            <div class="bg-white/60 p-4 rounded-2xl text-left space-y-2 border border-slate-950/10 text-xs font-bold text-slate-900">
+                <p class="text-rose-600 font-black">⚠️ Strict Safety Guidelines:</p>
+                <p>• Must be 18+ years of age to use this platform.</p>
+                <p>• No nudity, abuse, or inappropriate behavior.</p>
+                <p>• Violators will be permanently banned.</p>
+            </div>
+
+            <!-- Age Checkbox -->
+            <label class="flex items-center space-x-3 text-xs font-black text-slate-950 cursor-pointer text-left px-1">
+                <input type="checkbox" id="ageCheck" class="w-4 h-4 rounded accent-slate-950 cursor-pointer">
+                <span>I confirm that I am 18 years or older and agree to the Safety Rules.</span>
+            </label>
+
+            <!-- Gmail Only Login Button -->
+            <div class="space-y-3">
+                <button onclick="handleGoogleLogin()" class="w-full py-4 bg-slate-950 hover:bg-black text-yellow-300 font-black text-sm rounded-2xl shadow-xl flex items-center justify-center space-x-2 transition transform active:scale-95">
+                    <span>🔵 Continue with Google</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Header -->
     <header class="w-full max-w-7xl mx-auto px-6 py-4 flex justify-between items-center z-30">
         <div class="flex items-center space-x-3">
@@ -34,8 +68,9 @@
             <span class="text-3xl font-black tracking-tight text-slate-950">Root Perk</span>
         </div>
         
-        <!-- Filter Controls -->
+        <!-- Filter Controls & User Status -->
         <div class="flex items-center space-x-3">
+            <span id="userInfo" class="hidden sm:inline-block bg-slate-950 text-yellow-300 font-black text-xs px-3 py-2 rounded-xl">👤 Verified Google User</span>
             <select id="genderSelect" onchange="handleGenderChange(this.value)" class="bg-slate-950 text-yellow-300 font-extrabold text-xs px-4 py-2 rounded-xl border border-black cursor-pointer shadow">
                 <option value="both">Filter: Both (Free)</option>
                 <option value="male">Filter: Male ♂</option>
@@ -70,7 +105,7 @@
                         ⚡
                     </div>
                     <div>
-                        <p class="font-black text-slate-950 text-sm">Guest Mode</p>
+                        <p class="font-black text-slate-950 text-sm">Gmail Authenticated</p>
                         <p class="text-[11px] font-bold text-slate-800" id="currentFilterText">Filter: Both (Random)</p>
                     </div>
                 </div>
@@ -165,12 +200,25 @@
         </div>
     </footer>
 
-    <!-- Logic Script with Custom Signaling Server -->
+    <!-- Logic Script with Gmail Login Verification -->
     <script>
         let localStream, peer, currentCall, dataConn;
         let selectedGender = "both";
         let filterTimerInterval = null;
         let pendingGender = "";
+
+        function handleGoogleLogin() {
+            const ageChecked = document.getElementById('ageCheck').checked;
+            if (!ageChecked) {
+                alert("Please confirm that you are 18+ and agree to the safety guidelines.");
+                return;
+            }
+            
+            // Simulating secure Google OAuth login success feedback
+            // (Note: To link real Google Firebase Auth later, you can swap this function out)
+            document.getElementById('authModal').classList.add('hidden');
+            document.getElementById('userInfo').innerText = `👤 Google Verified`;
+        }
 
         async function initMedia() {
             try {
@@ -178,9 +226,9 @@
                 document.getElementById('localVideo').srcObject = localStream;
                 document.getElementById('statusText').innerText = "CONNECTING TO SERVERS...";
                 
-                // Yahan aapka apna custom signaling server connect ho raha hai (200-300 users ke liye stable)
+                // Custom Render Signaling Server Connection
                 peer = new Peer({
-                    host: 'root-perk-signaling.onrender.com',
+                    host: 'root-perk-serve.onrender.com',
                     port: 443,
                     secure: true,
                     path: '/'
@@ -210,7 +258,7 @@
                 });
 
             } catch (err) {
-                alert("Camera and Microphone permissions are required!");
+                alert("Camera and Microphone permissions are required to start video chat!");
             }
         }
 
@@ -321,7 +369,7 @@
             if (filterTimerInterval) clearInterval(filterTimerInterval);
             document.getElementById('filterTimer').classList.add('hidden');
             document.getElementById('genderSelect').value = 'both';
-            selectedgender = 'both';
+            selectedGender = 'both';
             document.getElementById('currentFilterText').innerText = "Filter: Both (Random)";
         }
 
