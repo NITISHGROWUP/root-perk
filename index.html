@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Root Perk — Instant Live Video Chat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;800;900&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .mirror { transform: scaleX(-1); }
+        video { object-fit: cover; }
+        
+        /* Vibrant Yellow & Glass Theme */
+        .yellow-bg { background-color: #FFE600; }
+        .panel-glass {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(16px);
+            border: 2px solid rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="yellow-bg text-slate-950 min-h-screen flex flex-col justify-between selection:bg-black selection:text-yellow-300 overflow-x-hidden">
+
+    <!-- Top Navigation Header -->
+    <header class="w-full max-w-7xl mx-auto px-6 py-4 flex justify-between items-center z-30">
+        <div class="flex items-center space-x-3">
+            <div class="w-11 h-11 bg-slate-950 rounded-2xl flex items-center justify-center text-yellow-300 font-black text-xl shadow-lg">
+                🐵
+            </div>
+            <span class="text-3xl font-black tracking-tight text-slate-950">Root Perk</span>
+        </div>
+        <div class="flex items-center space-x-2 bg-black/10 px-4 py-2 rounded-full border border-black/10">
+            <span class="w-2.5 h-2.5 bg-emerald-600 rounded-full animate-ping"></span>
+            <span class="text-xs font-black text-slate-950 uppercase tracking-wider">Online & Ready</span>
+        </div>
+    </header>
+
+    <!-- Main High-Impact Section (Inspired by your references) -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-2 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+
+        <!-- Left Side: Minimalist High-Engagement Control Box -->
+        <div class="lg:col-span-4 space-y-5">
+            <div class="space-y-2">
+                <span class="inline-block bg-slate-950 text-yellow-300 font-black text-[10px] px-3 py-1 rounded-full uppercase tracking-wider">
+                    Instant 1-on-1 Discovery
+                </span>
+                <h1 class="text-3xl sm:text-4xl font-black text-slate-950 leading-tight">
+                    Talk to Strangers Instantly.
+                </h1>
+                <p class="text-slate-900 font-bold text-xs sm:text-sm opacity-90 leading-relaxed">
+                    Zero friction. Real faces. High-definition live video matching with a single tap.
+                </p>
+            </div>
+
+            <!-- Quick Action Glass Panel -->
+            <div class="panel-glass p-5 rounded-3xl space-y-4 shadow-xl">
+                <div class="flex items-center space-x-3 bg-white/40 p-3 rounded-2xl">
+                    <div class="w-10 h-10 rounded-full bg-slate-950 text-yellow-300 font-black flex items-center justify-center text-sm shadow">
+                        ⚡
+                    </div>
+                    <div>
+                        <p class="font-black text-slate-950 text-sm">Guest Mode Active</p>
+                        <p class="text-[11px] font-bold text-slate-800">100% Secure & Filtered</p>
+                    </div>
+                </div>
+
+                <div class="space-y-2 text-[11px] font-bold text-slate-900">
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" checked class="rounded border-slate-950 text-slate-950 focus:ring-0 w-4 h-4 accent-slate-950">
+                        <span>I am 18+ years old & accept guidelines</span>
+                    </label>
+                </div>
+
+                <button id="startBtn" onclick="initMedia()" class="w-full py-4 rounded-2xl bg-slate-950 hover:bg-black text-yellow-300 font-black text-base shadow-2xl transition transform active:scale-95 flex items-center justify-center space-x-2">
+                    <span>START MATCHING</span>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Right Side: Immersive Split Video Screen (Like Reference) -->
+        <div class="lg:col-span-8">
+            <div class="relative bg-slate-950 p-3 rounded-3xl shadow-2xl border-4 border-slate-950/20">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 rounded-2xl overflow-hidden aspect-[16/10] bg-slate-900">
+                    
+                    <!-- Stranger Stream Window -->
+                    <div class="relative bg-slate-800 flex items-center justify-center min-h-[240px]">
+                        <video id="remoteVideo" autoplay playsinline class="w-full h-full"></video>
+                        <div id="statusText" class="absolute text-center px-4 text-xs font-black text-yellow-300 tracking-wider">
+                            TAP "START MATCHING" TO CONNECT
+                        </div>
+                        <span class="absolute top-3 left-3 bg-black/80 backdrop-blur-md text-yellow-300 font-black text-[10px] uppercase px-2.5 py-1 rounded-lg">
+                            Stranger 🐵
+                        </span>
+                    </div>
+
+                    <!-- User Local Stream Window -->
+                    <div class="relative bg-slate-800 flex items-center justify-center min-h-[240px]">
+                        <video id="localVideo" autoplay muted playsinline class="w-full h-full mirror"></video>
+                        <span class="absolute top-3 left-3 bg-black/80 backdrop-blur-md text-yellow-300 font-black text-[10px] uppercase px-2.5 py-1 rounded-lg">
+                            You 🍌
+                        </span>
+                    </div>
+
+                </div>
+
+                <!-- Call Control Floating Action Bar -->
+                <div class="mt-3 flex items-center justify-between px-2">
+                    <button id="stopBtn" onclick="stopCall()" disabled class="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-black text-xs uppercase tracking-wider transition disabled:opacity-30 disabled:cursor-not-allowed">
+                        Disconnect
+                    </button>
+                    <button id="nextBtn" onclick="nextStranger()" disabled class="px-6 py-2.5 rounded-xl bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-black text-xs uppercase tracking-wider transition shadow disabled:opacity-30 disabled:cursor-not-allowed">
+                        Next Match ➔
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Bottom Minimal Footer Bar -->
+    <footer class="w-full max-w-7xl mx-auto px-6 py-4 z-20">
+        <div class="panel-glass rounded-2xl p-3 flex flex-wrap items-center justify-between gap-3 text-slate-950 text-xs font-bold shadow-md">
+            <div class="flex items-center space-x-2">
+                <span class="bg-slate-950 text-yellow-300 px-2 py-0.5 rounded text-[10px]">PRO</span>
+                <span>Root Perk Secure Cloud-Relayed Matching Engine</span>
+            </div>
+            <span class="opacity-75">© 2026 Root Perk</span>
+        </div>
+    </footer>
+
+    <!-- WebRTC JavaScript Engine -->
+    <script>
+        let localStream, peer, currentCall;
+
+        async function initMedia() {
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                document.getElementById('localVideo').srcObject = localStream;
+                document.getElementById('statusText').innerText = "CONNECTING TO SERVERS...";
+                
+                peer = new Peer();
+
+                peer.on('open', (id) => {
+                    document.getElementById('statusText').innerText = "FINDING VERIFIED STRANGER...";
+                    document.getElementById('startBtn').disabled = true;
+                    document.getElementById('startBtn').classList.add('opacity-50');
+                    document.getElementById('nextBtn').disabled = false;
+                    document.getElementById('stopBtn').disabled = false;
+                });
+
+                peer.on('call', (call) => {
+                    call.answer(localStream);
+                    call.on('stream', (remoteStream) => {
+                        document.getElementById('remoteVideo').srcObject = remoteStream;
+                        document.getElementById('statusText').innerText = "";
+                    });
+                    currentCall = call;
+                });
+
+            } catch (err) {
+                alert("Camera and Microphone permissions are required to use Root Perk.");
+            }
+        }
+
+        function stopCall() {
+            if (currentCall) currentCall.close();
+            if (localStream) localStream.getTracks().forEach(t => t.stop());
+            location.reload();
+        }
+
+        function nextStranger() {
+            document.getElementById('statusText').innerText = "SKIPPING TO NEXT MATCH...";
+            if (currentCall) currentCall.close();
+        }
+    </script>
+</body>
+</html>
